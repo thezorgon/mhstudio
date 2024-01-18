@@ -1,41 +1,28 @@
 <?php
-  /**
-  * Requires the "PHP Email Form" library
-  * The "PHP Email Form" library is available only in the pro version of the template
-  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
-  * For more info and help: https://bootstrapmade.com/php-email-form/
-  */
+ // Hubungkan ke database
+$koneksi = mysqli_connect("localhost", "root", "", "emailform");
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'contact@example.com';
+// Periksa koneksi
+if (mysqli_connect_error()) {
+    die("Koneksi database gagal: " . mysqli_connect_error());
+}
 
-  if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
-    include( $php_email_form );
-  } else {
-    die( 'Unable to load the "PHP Email Form" Library!');
-  }
+// Tangkap data formulir
+$name = $_POST['name'];
+$email = $_POST['email'];
+$subject = $_POST['subject'];
+$message = $_POST['message'];
 
-  $contact = new PHP_Email_Form;
-  $contact->ajax = true;
-  
-  $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
+// Query untuk menyimpan data ke dalam tabel
+$query = "INSERT INTO inmail (name, email, subject, message) VALUES ('$name', '$email', '$subject', '$message')";
 
-  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
-  /*
-  $contact->smtp = array(
-    'host' => 'example.com',
-    'username' => 'example',
-    'password' => 'pass',
-    'port' => '587'
-  );
-  */
+// Jalankan query
+if (mysqli_query($koneksi, $query)) {
+    echo "Data berhasil disimpan ke database.";
+} else {
+    echo "" . $query . "<br>" . mysqli_error($koneksi);
+}
 
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
-
-  echo $contact->send();
+// Tutup koneksi
+mysqli_close($koneksi);
 ?>
